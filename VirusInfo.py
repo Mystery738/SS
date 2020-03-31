@@ -53,7 +53,7 @@ def initHeaders():
 
 	return headers
 
-def sent_main (url, textToUser, login, password):
+def sent_main (server, url, textToUser, login, password):
 		msg = MIMEMultipart()
 
 		msg['Subject'] = 'Приветствую! Вот актуальная информация по короновирусу.'
@@ -61,9 +61,6 @@ def sent_main (url, textToUser, login, password):
 		body = textToUser
 
 		msg.attach (MIMEText(body, 'plain'))
-
-		server = root.SMTP_SSL (url, 465 )
-		server.login (login, password)
 
 		server.sendmail (login, login, msg.as_string() )
 		print (Fore.GREEN + 'Сообщение успешно отправлено!')	
@@ -107,12 +104,19 @@ def main ():
 	login = input ('Введите почту для отправки: ')
 	password = getpass.getpass ('Пароль: ')
 
-	print ('Ждите отправки и не закрывайте консоль!')
+	try:
+		server = root.SMTP_SSL (url, 465 )
+		server.login (login, password)
 
-	while True:
-		if strftime("%H:%M:%S", localtime()) == timePush:
-			textToUser = get_page_data ('https://www.worldometers.info/coronavirus/')
-			sent_main (url, textToUser, login, password)
+		print (Fore.GREEN + 'Логин и пароль верны. Ждите отправки и не закрывайте консоль!')
+
+		while True:
+			if strftime("%H:%M:%S", localtime()) == timePush:
+				textToUser = get_page_data ('https://www.worldometers.info/coronavirus/')
+				sent_main (server, url, textToUser, login, password)
+
+	except:
+		print (Fore.RED + 'Неверный логин или пароль!')
 
 if __name__ == '__main__':
 	clear ()
